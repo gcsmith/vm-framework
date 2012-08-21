@@ -1,0 +1,31 @@
+// create this image with
+// $ dot -Teps interrupts.dot -o interrupts.eps
+
+digraph G {
+
+    { rank=same; "User-space" [shape=plaintext]; exit; read; "..."; execve; hotswap; }
+    { rank=same; "Kernel-space" [shape=plaintext]; _isr_syscall; }
+
+    {
+        node [shape=plaintext];
+        "User-space" -> "Kernel-space" [label=" system-call interface",style=dotted];
+    }
+
+    "issue hardware int" [shape=box];
+
+    exit    -> "issue hardware int";
+    read    -> "issue hardware int";
+    "..."   -> "issue hardware int";
+    execve  -> "issue hardware int";
+    hotswap -> "issue hardware int";
+
+    "issue hardware int"  -> isr_save [style=dashed,label=" interrupt caught by hardware"];
+
+    isr_save        -> _isr_syscall;
+
+    _isr_syscall    -> _sys_exit;
+    _isr_syscall    -> _sys_read;
+    _isr_syscall    -> "... ";
+    _isr_syscall    -> _sys_execve;
+    _isr_syscall    -> _sys_hotswap;
+}
